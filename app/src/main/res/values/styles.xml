@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="MediaRouteButtonStyle">
+        <item name="android:tint" tools:override="true">?attr/customMediaRouteButtonTint</item>
+    </style>
+    <style name="FullScreenButtonStyle" parent="ExoMediaButton">
+        <item name="android:background" tools:override="true">@null</item>
+    </style>
+    <style name="ChromecastButtonStyle" parent="ExoMediaButton">
+        <item name="android:background" tools:override="true">@null</item>
+    </style>
+</resources>

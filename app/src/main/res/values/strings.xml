@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">retroclub</string>
+    <string name="join_whatsapp_group">Retroclub WhatsApp</string>
+    <string name="fullscreen">Enter fullscreen</string>
+    <string name="exit_fullscreen">Exit fullscreen</string>
+    <string name="chromecast">Chromecast</string>
+
+</resources>

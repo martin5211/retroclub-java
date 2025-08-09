@@ -1,0 +1,3 @@
+<resources>
+    <attr name="customMediaRouteButtonTint" format="color" />
+</resources>
