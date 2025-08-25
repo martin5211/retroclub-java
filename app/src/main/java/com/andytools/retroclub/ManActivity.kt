@@ -3,7 +3,6 @@ package com.andytools.retroclub
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -12,8 +11,6 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.ui.PlayerView
-import com.andytools.retroclub.common.extensions.applyInsets
 import com.andytools.retroclub.common.utils.Logger
 import com.andytools.retroclub.ui.media.cast.CastManager
 import com.andytools.retroclub.ui.media.player.ExoPlayerManager
@@ -49,7 +46,7 @@ import com.andytools.retroclub.ui.theme.ThemeManagerTheme
 @UnstableApi
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    @Inject lateinit var playerManager: ExoPlaHeader yerManager
+    @Inject lateinit var playerManager: ExoPlayerManager
     @Inject lateinit var castManager: CastManager
     @Inject lateinit var pipManager: PipManager
     @Inject lateinit var themeManager: ThemeManager
