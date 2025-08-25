@@ -14,8 +14,8 @@ android {
         applicationId = "com.andytools.retroclub"
         minSdk = 26 // Required for PiP
         targetSdk = 36
-        versionCode = 3
-        versionName = "1.0.2"
+        versionCode = 4
+        versionName = "1.0.3"
         vectorDrawables.useSupportLibrary = true
     }
     buildFeatures {
@@ -40,6 +40,8 @@ android {
 }
 
 dependencies {
+    // Compose BOM - ensures all Compose libraries use compatible versions
+    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)

@@ -43,7 +43,7 @@ class MediaPlayerViewModel @Inject constructor(
     }
 
     private suspend fun authenticate() {
-        accessToken = authenticateUserUseCase.execute("admin", "admin123")
+        accessToken = authenticateUserUseCase.execute("andy", "nomeacuerdo")
         Logger.d("Authentication successful")
     }
 
@@ -85,6 +85,17 @@ class MediaPlayerViewModel @Inject constructor(
         refreshJob = null
     }
 
+    fun refreshMediaItems() {
+        viewModelScope.launch {
+            try {
+                if (accessToken == null) authenticate()
+                loadMediaItems()
+            } catch (e: Exception) {
+                Logger.e("Error during manual refresh: ${e.message}", e)
+            }
+        }
+    }
+    
     override fun onCleared() {
         super.onCleared()
         stopRefreshLoop()

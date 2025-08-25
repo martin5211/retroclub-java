@@ -51,7 +51,7 @@ class MediaApiService @Inject constructor(
                 items.add(
                     MediaItemDto(
                         title = item.getString("title"),
-                        thumbnailUrl = item.getString("thumbnail_url")
+                        thumbnailUrl = Constants.API_BASE_URL + item.getString("thumbnail_url")
                     )
                 )
             }

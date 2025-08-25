@@ -27,10 +27,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +46,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.media3.common.Player
 import com.andytools.retroclub.ui.theme.ThemeManagerTheme
 
+@UnstableApi
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     @Inject lateinit var playerManager: ExoPlayerManager
@@ -70,6 +73,7 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             var isFullscreen by remember { mutableStateOf(false) }
+            var isRefreshing by remember { mutableStateOf(false) }
 
             ThemeManagerTheme(themeManager = themeManager) {
                 if (isFullscreen) {
@@ -101,19 +105,53 @@ class MainActivity : AppCompatActivity() {
                                     .verticalScroll(rememberScrollState())
                             ) {
                                 if (!pipManager.isInPipMode()) {
-                                    Image(
-                                        painter = painterResource(id = R.drawable.retroclub_full_image),
-                                        contentDescription = "Header Image",
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(200.dp)
-                                            .background(
-                                                Color(
-                                                    themeManager.getHeaderBgColor().toColorInt()
+                                    Box {
+                                        Image(
+                                            painter = painterResource(id = R.drawable.retroclub_full_image),
+                                            contentDescription = "Header Image - Tap to refresh",
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(200.dp)
+                                                .background(
+                                                    Color(
+                                                        themeManager.getHeaderBgColor().toColorInt()
+                                                    )
                                                 )
-                                            ),
-                                        contentScale = ContentScale.Inside
-                                    )
+                                                .clickable {
+                                                    Logger.d("Header clicked - triggering refresh")
+                                                    if (!isRefreshing) {
+                                                        isRefreshing = true
+                                                        viewModel.refreshMediaItems()
+                                                    }
+                                                },
+                                            contentScale = ContentScale.Inside
+                                        )
+                                        
+                                        // Refresh indicator overlay
+                                        if (isRefreshing) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(200.dp)
+                                                    .background(Color.Black.copy(alpha = 0.3f)),
+                                                contentAlignment = androidx.compose.ui.Alignment.Center
+                                            ) {
+                                                CircularProgressIndicator(
+                                                    modifier = Modifier.size(32.dp),
+                                                    color = Color.White
+                                                )
+                                            }
+                                        }
+                                    }
+                                    
+                                    // Handle refresh completion
+                                    LaunchedEffect(isRefreshing) {
+                                        if (isRefreshing) {
+                                            // Reset after 2 seconds
+                                            kotlinx.coroutines.delay(2000)
+                                            isRefreshing = false
+                                        }
+                                    }
                                 }
                                 MediaPlayerScreen(
                                     playerManager = playerManager,
@@ -159,8 +197,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
-        themeManager.setOnThemeChangedListener { applyTheme() }
     }
 
     @UnstableApi
@@ -183,10 +219,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun applyTheme() {
-        //window.decorView.setBackgroundColor(themeManager.getBackgroundColor().toColorInt())
-    }
-
+    @UnstableApi
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
         pipManager.onPictureInPictureModeChanged(isInPictureInPictureMode, playerManager)
@@ -195,24 +228,30 @@ class MainActivity : AppCompatActivity() {
             if (playerManager.getPlayer().playbackState == Player.STATE_READY) {
                 playerManager.play()
             }
+        } else {
+            // Video and sound are already stopped by PipManager
+            Logger.d("Exited PIP mode - video and sound stopped")
         }
     }
 
     @UnstableApi
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        if (!pipManager.isInPipMode() && playerManager.isPlaying()) {
+        if (!pipManager.isInPipMode() && playerManager.isPlaying() && !playerManager.isAudioOnlyMode()) {
             pipManager.togglePipMode(playerManager)
         }
     }
 
+    @UnstableApi
     override fun onStop() {
         super.onStop()
-        if (!pipManager.isInPipMode()) {
+        // Don't pause if in audio-only mode (allow background audio playback)
+        if (!pipManager.isInPipMode() && !playerManager.isAudioOnlyMode()) {
             playerManager.pause()
         }
     }
 
+    @UnstableApi
     override fun onDestroy() {
         super.onDestroy()
         playerManager.releasePlayer()

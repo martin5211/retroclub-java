@@ -9,6 +9,7 @@ import dagger.hilt.android.qualifiers.ActivityContext
 import javax.inject.Inject
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.media3.common.util.UnstableApi
 
 class PipManager @Inject constructor(
     @ActivityContext private val context: Context
@@ -17,6 +18,7 @@ class PipManager @Inject constructor(
     private val _isPipMode: MutableState<Boolean> = mutableStateOf(false)
     private var wasPlayingBeforePip = false
 
+    @UnstableApi
     fun togglePipMode(player: ExoPlayerManager) {
         if (activity?.packageManager?.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE) == true) {
             if (!_isPipMode.value) {
@@ -45,14 +47,14 @@ class PipManager @Inject constructor(
         }
     }
 
+    @UnstableApi
     fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, player: ExoPlayerManager) {
         _isPipMode.value = isInPictureInPictureMode
-        if (!isInPictureInPictureMode && wasPlayingBeforePip) {
-            player.play()
+        if (!isInPictureInPictureMode) {
+            // Stop video and sound when exiting PIP mode
+            player.stop()
         } else if (isInPictureInPictureMode) {
             wasPlayingBeforePip = player.isPlaying()
-        } else {
-            player.pause()
         }
     }
 

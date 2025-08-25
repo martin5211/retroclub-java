@@ -1,110 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/exo_controls"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="bottom"
-    android:layoutDirection="ltr"
-    android:background="@color/exo_black_opacity_60"
-    android:orientation="vertical">
+    android:layout_height="match_parent"
+    android:background="@color/exo_black_opacity_60">
 
-    <!-- Top row with time and settings -->
-    <LinearLayout
+    <!-- Rewind button - left of play/pause -->
+    <ImageButton
+        android:id="@+id/exo_rew"
+        style="@style/ExoStyledControls.Button.Center.PlayPause"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@id/exo_play_pause"
+        android:layout_marginEnd="32dp" />
+
+    <!-- Play/pause button - centered vertically and horizontally -->
+    <ImageButton
+        android:id="@id/exo_play_pause"
+        style="@style/ExoStyledControls.Button.Center.PlayPause"
+        android:layout_centerInParent="true" />
+
+    <!-- Forward button - right of play/pause -->
+    <ImageButton
+        android:id="@+id/exo_ffwd"
+        style="@style/ExoStyledControls.Button.Center.PlayPause"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@id/exo_play_pause"
+        android:layout_marginStart="32dp" />
+
+    <!-- Custom chromecast button - top right corner -->
+    <ImageButton
+        android:id="@+id/custom_chromecast"
+        style="@style/ChromecastButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/chromecast"
+        android:src="@drawable/ic_chromecast_expand" />
+
+    <!-- Custom PIP button - bottom right, to the left of fullscreen -->
+    <ImageButton
+        android:id="@+id/custom_pip"
+        style="@style/FullScreenButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@+id/custom_fullscreen"
+        android:layout_above="@+id/exo_progress"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="14dp"
+        android:src="@drawable/ic_pip_enter"
+        android:visibility="visible" />
+
+    <!-- Custom fullscreen button - bottom right corner -->
+    <ImageButton
+        android:id="@+id/custom_fullscreen"
+        style="@style/FullScreenButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_above="@+id/exo_progress"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="@string/fullscreen"
+        android:src="@drawable/ic_fullscreen_expand"
+        android:visibility="visible" />
+
+    <!-- Audio-only mode button - bottom left corner -->
+    <ImageButton
+        android:id="@+id/custom_audio_only"
+        style="@style/FullScreenButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/exo_progress"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="20dp"
+        android:scaleX="-1"
+        android:src="@drawable/ic_audio_only"
+        android:visibility="visible" />
+
+    <!-- Progress bar - bottom border, below fullscreen button -->
+    <com.andytools.retroclub.ui.media.player.LiveTimeBar
+        android:id="@id/exo_progress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:paddingLeft="12dp"
-        android:paddingTop="4dp"
-        android:paddingRight="12dp"
-        android:orientation="horizontal">
+        android:layout_alignParentBottom="true"
+        app:bar_height="4dp"
+        app:touch_target_height="26dp"
+        app:ad_marker_width="6dp"
+        app:scrubber_enabled_size="12dp"
+        app:scrubber_disabled_size="0dp"
+        app:scrubber_dragged_size="16dp"
+        app:buffered_color="#CCFFFFFF"
+        app:played_color="#3ECCFE"
+        app:scrubber_color="#3ECCFE"
+        app:unplayed_color="#33FFFFFF" />
 
-        <TextView android:id="@id/exo_position"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:includeFontPadding="false"
-            android:textColor="#FFBEBEBE"/>
-
-        <androidx.media3.ui.DefaultTimeBar android:id="@id/exo_progress"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="26dp"
-            android:layout_marginLeft="4dp"
-            android:layout_marginRight="4dp"
-            app:played_color="#FF0000FF"
-            app:scrubber_color="#FF0000FF"
-            app:buffered_color="#CCFFFFFF"
-            app:unplayed_color="#33FFFFFF"/>
-
-        <TextView android:id="@id/exo_duration"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:includeFontPadding="false"
-            android:textColor="#FFBEBEBE"/>
-
-    </LinearLayout>
-
-    <!-- Bottom row with controls -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp">
-
-        <!-- Previous button -->
-        <ImageButton android:id="@id/exo_prev"
-            style="@style/ExoStyledControls.Button.Center.Previous"/>
-
-        <!-- Rewind button -->
-        <ImageButton android:id="@id/exo_rew"
-            style="@style/ExoMediaButton.Rewind"/>
-
-        <!-- Play/pause button -->
-        <ImageButton android:id="@id/exo_play_pause"
-            style="@style/ExoStyledControls.Button.Center.PlayPause"/>
-
-        <!-- Fast forward button -->
-        <ImageButton android:id="@id/exo_ffwd"
-            style="@style/ExoMediaButton.FastForward"/>
-
-        <!-- Next button -->
-        <ImageButton android:id="@id/exo_next"
-            style="@style/ExoStyledControls.Button.Center.Next"/>
-
-        <!-- Spacer -->
-
-
-        <!-- Settings button -->
-        <!--<ImageButton android:id="@id/exo_settings"
-            style="@style/ExoStyledControls.Button.Bottom.Settings"/>-->
-
-        <!-- Custom fullscreen button -->
-        <ImageButton
-            android:id="@+id/custom_fullscreen"
-            android:src="@android:drawable/ic_menu_zoom"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/FullScreenButtonStyle"
-            android:visibility="visible"
-            android:contentDescription="@string/fullscreen"/>
-
-        <ImageButton
-            android:id="@+id/custom_chromecast"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_chromecast_expand"
-            android:layout_marginTop="6dp"
-            style="@style/ChromecastButtonStyle"
-            android:contentDescription="@string/chromecast"/>
-
-    </LinearLayout>
-
-</LinearLayout>
+</RelativeLayout>

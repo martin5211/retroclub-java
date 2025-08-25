@@ -2,7 +2,6 @@ package com.andytools.retroclub.data.repository
 
 import com.andytools.retroclub.common.utils.Logger
 import com.andytools.retroclub.data.remote.api.MediaApiService
-import com.andytools.retroclub.data.remote.dto.MediaItemDto
 import com.andytools.retroclub.domain.model.MediaItem
 import com.andytools.retroclub.domain.repository.MediaRepository
 import javax.inject.Inject
@@ -32,8 +31,8 @@ class MediaRepositoryImpl @Inject constructor(
 
     override fun getSampleMediaItems(): List<MediaItem> {
         return listOf(
-            MediaItem("Sting", "https://www.theaudiodb.com/images/media/album/thumb/ysqysy1558955451.jpg/medium"),
-            MediaItem("INXS", "https://www.theaudiodb.com/images/media/album/thumb/xttuts1341508831.jpg/medium"),
+            //MediaItem("Sting", "https://www.theaudiodb.com/images/media/album/thumb/ysqysy1558955451.jpg/medium"),
+            //MediaItem("INXS", "https://www.theaudiodb.com/images/media/album/thumb/xttuts1341508831.jpg/medium"),
             // ... other sample items as in original code
         )
     }

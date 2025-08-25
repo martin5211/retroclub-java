@@ -6,8 +6,11 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
@@ -16,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.PlaybackException
@@ -44,9 +48,23 @@ fun MediaPlayerScreen(
     val context = LocalContext.current
     var isControllerVisible by remember { mutableStateOf(true) }
     var playerView by remember { mutableStateOf<PlayerView?>(null) }
+    var isAudioOnlyMode by remember { mutableStateOf(false) }
 
-    // Single AndroidView for both PiP and non-PiP modes
-    AndroidView(
+    // Single AndroidView for both PiP and non-PiP modes wrapped in Box for overlay
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .then(
+                if (pipManager.isInPipMode()) {
+                    Modifier.fillMaxSize()
+                } else if (isFullscreen) {
+                    Modifier.fillMaxHeight()
+                } else {
+                    Modifier.aspectRatio(16f / 9f)
+                }
+            )
+    ) {
+        AndroidView(
         factory = { ctx ->
             PlayerView(ctx).apply {
                 player = playerManager.getPlayer()
@@ -79,6 +97,16 @@ fun MediaPlayerScreen(
                     }
                 }
 
+                // PIP button setup
+                findViewById<ImageButton>(R.id.custom_pip)?.let { pipButton ->
+                    pipButton.setOnClickListener {
+                        Logger.d("PIP button clicked")
+                        pipManager.togglePipMode(playerManager)
+                    }
+                    // Update PIP button visibility based on audio-only mode
+                    pipButton.visibility = if (isAudioOnlyMode) View.GONE else View.VISIBLE
+                }
+
                 // Chromecast button setup
                 findViewById<ImageButton>(R.id.custom_chromecast)?.setOnClickListener {
                     if (com.google.android.gms.common.GoogleApiAvailability.getInstance()
@@ -88,6 +116,33 @@ fun MediaPlayerScreen(
                     } else {
                         Logger.e("Google Play Services not available for Chromecast")
                     }
+                }
+
+                // Audio-only button setup
+                findViewById<ImageButton>(R.id.custom_audio_only)?.setOnClickListener {
+                    Logger.d("Audio-only button clicked. Current state: $isAudioOnlyMode")
+                    isAudioOnlyMode = !isAudioOnlyMode
+                    playerManager.setAudioOnlyMode(isAudioOnlyMode)
+                }
+
+                // Rewind button setup
+                findViewById<ImageButton>(R.id.exo_rew)?.let { rewButton ->
+                    Logger.d("Found rewind button, setting click listener")
+                    rewButton.setOnClickListener {
+                        Logger.d("=== REWIND BUTTON CLICKED ===")
+                        playerManager.seekBackward(30000L) // 30 seconds
+                    }
+                } ?: Logger.e("Rewind button not found in layout!")
+
+                // Forward button setup  
+                findViewById<ImageButton>(R.id.exo_ffwd)?.setOnClickListener {
+                    Logger.d("Forward button clicked")
+                    playerManager.seekForward(30000L) // 30 seconds
+                }
+
+                // Connect LiveTimeBar
+                findViewById<LiveTimeBar>(R.id.exo_progress)?.let { timeBar ->
+                    playerManager.setLiveTimeBar(timeBar)
                 }
 
                 // Add MediaRouteButton for Chromecast
@@ -173,22 +228,29 @@ fun MediaPlayerScreen(
             fullscreenButton?.let { button ->
                 updateFullscreenButtonAppearance(button, isFullscreen, context)
             }
+            // Update PIP button visibility based on audio-only mode
+            view.findViewById<ImageButton>(R.id.custom_pip)?.visibility = 
+                if (isAudioOnlyMode || pipManager.isInPipMode()) View.GONE else View.VISIBLE
             // Ensure Chromecast button visibility
             view.findViewById<MediaRouteButton>(R.id.compose_cast_button)?.visibility =
                 if (pipManager.isInPipMode()) View.GONE else View.INVISIBLE
         },
-        modifier = modifier
-            .fillMaxWidth()
-            .then(
-                if (pipManager.isInPipMode()) {
-                    Modifier.fillMaxSize()
-                } else if (isFullscreen) {
-                    Modifier.fillMaxHeight()
-                } else {
-                    Modifier.aspectRatio(16f / 9f)
-                }
-            )
+        modifier = Modifier.fillMaxSize()
     )
+
+        // Black overlay for audio-only mode (hide when controls are visible)
+        if (isAudioOnlyMode && !pipManager.isInPipMode()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black)
+                    .clickable {
+                        isAudioOnlyMode = false
+                        playerManager.setAudioOnlyMode(false)
+                    }
+            )
+        }
+    }
 
     // Update fullscreen button when isFullscreen changes
     LaunchedEffect(isFullscreen, pipManager.isInPipMode()) {
