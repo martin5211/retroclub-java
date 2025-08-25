@@ -49,7 +49,7 @@ import com.andytools.retroclub.ui.theme.ThemeManagerTheme
 @UnstableApi
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    @Inject lateinit var playerManager: ExoPlayerManager
+    @Inject lateinit var playerManager: ExoPlaHeader yerManager
     @Inject lateinit var castManager: CastManager
     @Inject lateinit var pipManager: PipManager
     @Inject lateinit var themeManager: ThemeManager
@@ -122,6 +122,7 @@ class MainActivity : AppCompatActivity() {
                                                     if (!isRefreshing) {
                                                         isRefreshing = true
                                                         viewModel.refreshMediaItems()
+                                                        playerManager.refreshStream()
                                                     }
                                                 },
                                             contentScale = ContentScale.Inside

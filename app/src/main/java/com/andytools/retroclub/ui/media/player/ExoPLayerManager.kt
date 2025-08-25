@@ -166,6 +166,33 @@ class ExoPlayerManager @Inject constructor(
         timeBar.setPlayer(exoPlayer)
     }
     
+    fun refreshStream() {
+        scope.launch {
+            try {
+                if (accessToken == null) authenticate()
+                val previousStreamUrl = streamUrl
+                loadStreamUrl()
+
+                Logger.d("Stream refresh - Previous URL: $previousStreamUrl")
+                Logger.d("Stream refresh - Current URL: $streamUrl")
+                Logger.d("Stream refresh - URLs same: ${streamUrl == currentStreamUrl}")
+
+                // Only change streamUrl if it is different to currentStreamUrl
+                if (streamUrl != currentStreamUrl) {
+                    val mediaItem = createLiveMediaItem(streamUrl)
+                    exoPlayer.setMediaItem(mediaItem)
+                    exoPlayer.prepare()
+                    currentStreamUrl = streamUrl
+                    Logger.d("Stream URL refreshed, updating media item: $streamUrl")
+                } else {
+                    Logger.d("Stream URL unchanged during refresh")
+                }
+            } catch (e: Exception) {
+                Logger.e("Error during stream refresh: ${e.message}", e)
+            }
+        }
+    }
+    
     fun seekBackward(seekBackMs: Long = 30000L) {
         val currentPosition = exoPlayer.currentPosition
         val bufferedPosition = exoPlayer.bufferedPosition
