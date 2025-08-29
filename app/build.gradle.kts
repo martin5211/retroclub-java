@@ -7,15 +7,15 @@ plugins {
 }
 
 android {
-    namespace = "com.andytools.retroclub"
+    namespace = "com.retroclub.retroclub"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.andytools.retroclub"
+        applicationId = "com.retroclub.retroclub"
         minSdk = 26 // Required for PiP
         targetSdk = 36
-        versionCode = 4
-        versionName = "1.0.3"
+        versionCode = 1
+        versionName = "1.0.0"
         vectorDrawables.useSupportLibrary = true
     }
     buildFeatures {
