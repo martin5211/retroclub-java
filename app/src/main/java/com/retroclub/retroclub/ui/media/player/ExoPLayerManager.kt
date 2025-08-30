@@ -35,7 +35,6 @@ class ExoPlayerManager @Inject constructor(
     private var isRefreshLoopActive = false
     private var currentStreamUrl: String? = null
     private var isAudioOnlyModeEnabled = false
-    private var liveTimeBar: LiveTimeBar? = null
 
     private suspend fun authenticate() {
         accessToken = authenticateUserUseCase.execute("andy", "nomeacuerdo")
@@ -65,7 +64,6 @@ class ExoPlayerManager @Inject constructor(
                 exoPlayer.prepare()
                 exoPlayer.playWhenReady = true
                 currentStreamUrl = streamUrl
-                liveTimeBar?.resetVirtualTimer()
                 onSuccess?.invoke()
             } catch (e: Exception) {
                 Logger.e("Error starting playback: ${e.message}", e)
@@ -161,10 +159,6 @@ class ExoPlayerManager @Inject constructor(
         return isAudioOnlyModeEnabled
     }
     
-    fun setLiveTimeBar(timeBar: LiveTimeBar) {
-        this.liveTimeBar = timeBar
-        timeBar.setPlayer(exoPlayer)
-    }
     
     fun refreshStream() {
         scope.launch {
@@ -193,38 +187,5 @@ class ExoPlayerManager @Inject constructor(
         }
     }
     
-    fun seekBackward(seekBackMs: Long = 30000L) {
-        val currentPosition = exoPlayer.currentPosition
-        val bufferedPosition = exoPlayer.bufferedPosition
-        val duration = exoPlayer.duration
-        val totalBufferedDuration = exoPlayer.totalBufferedDuration
-        
-        Logger.d("=== SEEK BACKWARD DEBUG ===")
-        Logger.d("Current position: $currentPosition ms")
-        Logger.d("Buffered position: $bufferedPosition ms") 
-        Logger.d("Total buffered duration: $totalBufferedDuration ms")
-        Logger.d("Duration: $duration ms")
-        Logger.d("Requested seek back: $seekBackMs ms")
-        
-        // Simple approach - just seek back, let ExoPlayer handle it
-        val targetPosition = maxOf(0L, currentPosition - seekBackMs)
-        
-        Logger.d("Target position: $targetPosition ms")
-        Logger.d("Calling exoPlayer.seekTo($targetPosition)")
-        
-        try {
-            exoPlayer.seekTo(targetPosition)
-            Logger.d("Seek completed successfully")
-        } catch (e: Exception) {
-            Logger.e("Seek failed: ${e.message}", e)
-        }
-    }
     
-    fun seekForward(seekForwardMs: Long = 30000L) {
-        val currentPosition = exoPlayer.currentPosition
-        val bufferedPosition = exoPlayer.bufferedPosition
-        val newPosition = minOf(bufferedPosition, currentPosition + seekForwardMs)
-        Logger.d("Seeking forward: from $currentPosition to $newPosition")
-        exoPlayer.seekTo(newPosition)
-    }
 }

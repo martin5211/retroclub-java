@@ -125,25 +125,6 @@ fun MediaPlayerScreen(
                     playerManager.setAudioOnlyMode(isAudioOnlyMode)
                 }
 
-                // Rewind button setup
-                findViewById<ImageButton>(R.id.exo_rew)?.let { rewButton ->
-                    Logger.d("Found rewind button, setting click listener")
-                    rewButton.setOnClickListener {
-                        Logger.d("=== REWIND BUTTON CLICKED ===")
-                        playerManager.seekBackward(30000L) // 30 seconds
-                    }
-                } ?: Logger.e("Rewind button not found in layout!")
-
-                // Forward button setup  
-                findViewById<ImageButton>(R.id.exo_ffwd)?.setOnClickListener {
-                    Logger.d("Forward button clicked")
-                    playerManager.seekForward(30000L) // 30 seconds
-                }
-
-                // Connect LiveTimeBar
-                findViewById<LiveTimeBar>(R.id.exo_progress)?.let { timeBar ->
-                    playerManager.setLiveTimeBar(timeBar)
-                }
 
                 // Add MediaRouteButton for Chromecast
                 val mediaRouteButton = androidx.mediarouter.app.MediaRouteButton(ctx).apply {

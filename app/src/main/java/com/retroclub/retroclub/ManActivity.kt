@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         playerManager.initializePlayer()
+        castManager.setExoPlayerManager(playerManager)
         castManager.initialize()
         viewModel.initialize()
 
