@@ -35,6 +35,7 @@ class ExoPlayerManager @Inject constructor(
     private var isRefreshLoopActive = false
     private var currentStreamUrl: String? = null
     private var isAudioOnlyModeEnabled = false
+    private var castManager: com.retroclub.retroclub.ui.media.cast.CastManager? = null
 
     private suspend fun authenticate() {
         accessToken = authenticateUserUseCase.execute("andy", "nomeacuerdo")
@@ -87,13 +88,18 @@ class ExoPlayerManager @Inject constructor(
                     Logger.d("Refresh cycle - Current URL: $streamUrl")
                     Logger.d("Refresh cycle - URLs same: ${streamUrl == currentStreamUrl}")
 
-                    // Only change streamUrl if it is different to currentStreamUrl
+                    // Only change streamUrl if it is different to currentStreamUrl and not casting
                     if (streamUrl != currentStreamUrl) {
-                        val mediaItem = createLiveMediaItem(streamUrl)
-                        exoPlayer.setMediaItem(mediaItem)
-                        exoPlayer.prepare()
-                        currentStreamUrl = streamUrl
-                        Logger.d("Stream URL changed, updating media item: $streamUrl")
+                        if (castManager?.isCasting() == true) {
+                            Logger.d("Casting active, skipping local player update")
+                            currentStreamUrl = streamUrl // Update URL but don't change player
+                        } else {
+                            val mediaItem = createLiveMediaItem(streamUrl)
+                            exoPlayer.setMediaItem(mediaItem)
+                            exoPlayer.prepare()
+                            currentStreamUrl = streamUrl
+                            Logger.d("Stream URL changed, updating media item: $streamUrl")
+                        }
                     } else {
                         Logger.d("Stream URL unchanged, skipping setMediaItem")
                     }
@@ -160,6 +166,10 @@ class ExoPlayerManager @Inject constructor(
     }
     
     
+    fun setCastManager(castManager: com.retroclub.retroclub.ui.media.cast.CastManager) {
+        this.castManager = castManager
+    }
+    
     fun refreshStream() {
         scope.launch {
             try {
@@ -171,13 +181,18 @@ class ExoPlayerManager @Inject constructor(
                 Logger.d("Stream refresh - Current URL: $streamUrl")
                 Logger.d("Stream refresh - URLs same: ${streamUrl == currentStreamUrl}")
 
-                // Only change streamUrl if it is different to currentStreamUrl
+                // Only change streamUrl if it is different to currentStreamUrl and not casting
                 if (streamUrl != currentStreamUrl) {
-                    val mediaItem = createLiveMediaItem(streamUrl)
-                    exoPlayer.setMediaItem(mediaItem)
-                    exoPlayer.prepare()
-                    currentStreamUrl = streamUrl
-                    Logger.d("Stream URL refreshed, updating media item: $streamUrl")
+                    if (castManager?.isCasting() == true) {
+                        Logger.d("Casting active, skipping local player refresh")
+                        currentStreamUrl = streamUrl // Update URL but don't change player
+                    } else {
+                        val mediaItem = createLiveMediaItem(streamUrl)
+                        exoPlayer.setMediaItem(mediaItem)
+                        exoPlayer.prepare()
+                        currentStreamUrl = streamUrl
+                        Logger.d("Stream URL refreshed, updating media item: $streamUrl")
+                    }
                 } else {
                     Logger.d("Stream URL unchanged during refresh")
                 }

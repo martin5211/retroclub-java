@@ -24,6 +24,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@UnstableApi
 class CastManager @Inject constructor(
     @ActivityContext private val context: Context,
     private val castContext: CastContext?,
@@ -36,12 +37,13 @@ class CastManager @Inject constructor(
     private var accessToken: String? = null
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var exoPlayerManager: ExoPlayerManager? = null
+    private var isCasting = false
 
     private val sessionManagerListener = object : SessionManagerListener<CastSession> {
         @UnstableApi
         override fun onSessionStarted(session: CastSession, sessionId: String) {
-            Logger.d("Cast session started - pausing local playback")
-            exoPlayerManager?.pause()
+            Logger.d("Cast session started - preparing to load media")
+            isCasting = true
             castSession = session
             remoteMediaClient = session.remoteMediaClient
             loadMediaToCast()
@@ -51,6 +53,7 @@ class CastManager @Inject constructor(
         @UnstableApi
         override fun onSessionEnded(session: CastSession, error: Int) {
             Logger.d("Cast session ended - resuming local playback")
+            isCasting = false
             castSession = null
             remoteMediaClient = null
             exoPlayerManager?.play()
@@ -78,6 +81,7 @@ class CastManager @Inject constructor(
         onCastStateChanged = listener
     }
 
+    @UnstableApi
     fun setExoPlayerManager(playerManager: ExoPlayerManager) {
         this.exoPlayerManager = playerManager
     }
@@ -115,13 +119,20 @@ class CastManager @Inject constructor(
                     val requestData = MediaLoadRequestData.Builder()
                         .setMediaInfo(mediaInfo)
                         .setAutoplay(true)
+                        .setCurrentTime(0)
                         .build()
 
                     client.load(requestData).setResultCallback { result ->
                         if (!result.status.isSuccess) {
                             Logger.e("Failed to load stream to Chromecast: ${result.status.statusMessage}")
+                            // Resume local playback if cast fails
+                            exoPlayerManager?.play()
                         } else {
                             Logger.d("Successfully loaded stream to Chromecast: $streamUrl")
+                            // Only pause local playback after successful cast load
+                            exoPlayerManager?.pause()
+                            // Ensure cast starts playing
+                            client.play()
                         }
                     }
                 }
@@ -138,6 +149,8 @@ class CastManager @Inject constructor(
     fun pauseLocalPlayback(player: Player) {
         player.pause()
     }
+
+    fun isCasting(): Boolean = isCasting
 
     fun release() {
         castContext?.sessionManager?.removeSessionManagerListener(sessionManagerListener, CastSession::class.java)

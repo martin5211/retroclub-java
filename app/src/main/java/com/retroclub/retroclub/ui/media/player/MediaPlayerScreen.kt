@@ -47,6 +47,12 @@ fun MediaPlayerScreen(
 ) {
     val context = LocalContext.current
     var isControllerVisible by remember { mutableStateOf(true) }
+    
+    // Connect castManager to playerManager
+    LaunchedEffect(Unit) {
+        playerManager.setCastManager(castManager)
+        castManager.setExoPlayerManager(playerManager)
+    }
     var playerView by remember { mutableStateOf<PlayerView?>(null) }
     var isAudioOnlyMode by remember { mutableStateOf(false) }
 
