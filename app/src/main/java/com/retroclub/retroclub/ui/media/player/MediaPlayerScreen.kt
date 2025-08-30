@@ -131,6 +131,12 @@ fun MediaPlayerScreen(
                     playerManager.setAudioOnlyMode(isAudioOnlyMode)
                 }
 
+                // Reload button setup
+                findViewById<ImageButton>(R.id.custom_reload)?.setOnClickListener {
+                    Logger.d("Reload button clicked - refreshing stream")
+                    playerManager.refreshStreamOnDemand()
+                }
+
 
                 // Add MediaRouteButton for Chromecast
                 val mediaRouteButton = androidx.mediarouter.app.MediaRouteButton(ctx).apply {

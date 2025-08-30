@@ -76,13 +76,27 @@
         style="@style/FullScreenButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
         android:layout_above="@+id/exo_progress"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
         android:layout_marginStart="8dp"
         android:layout_marginBottom="20dp"
         android:scaleX="-1"
         android:src="@drawable/ic_audio_only"
+        android:visibility="visible" />
+
+    <!-- Reload/Refresh button - to the right of audio-only button -->
+    <ImageButton
+        android:id="@+id/custom_reload"
+        style="@style/FullScreenButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/exo_progress"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="12dp"
+        android:layout_marginBottom="18dp"
+        android:layout_toEndOf="@+id/custom_audio_only"
+        android:src="@drawable/ic_reload"
         android:visibility="visible" />
 
     <!-- Progress bar - bottom border, below fullscreen button -->

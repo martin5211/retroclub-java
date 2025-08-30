@@ -201,6 +201,22 @@ class ExoPlayerManager @Inject constructor(
             }
         }
     }
-    
+    fun refreshStreamOnDemand() {
+        scope.launch {
+            try {
+                if (accessToken == null) authenticate()
+                loadStreamUrl()
+
+                // Change streamUrl on-demand
+                val mediaItem = createLiveMediaItem(streamUrl)
+                exoPlayer.setMediaItem(mediaItem)
+                exoPlayer.prepare()
+                Logger.d("Stream URL refreshed, updating media item: $streamUrl")
+
+            } catch (e: Exception) {
+                Logger.e("Error during stream refresh: ${e.message}", e)
+            }
+        }
+    }
     
 }
